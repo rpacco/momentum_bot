@@ -4,7 +4,7 @@ import requests
 import json
 import pandas as pd
 import yfinance as yf
-from datetime import date, timedelta
+from datetime import date, datetime
 import matplotlib.pyplot as plt
 from pandas.tseries.offsets import BMonthEnd, BMonthBegin
 from sklearn.linear_model import LinearRegression
@@ -30,8 +30,7 @@ class TelegramBot:
                         update_id = message["update_id"]
                         chat_id = message["message"]["from"]["id"]
                         message_text = message["message"]["text"]
-                        date = pd.to_datetime(int(message["message"]["date"]), unit="ms")
-                        port_date_begin = (date - BMonthBegin()).strftime("%B-%Y")
+                        port_date_begin = datetime.utcfromtimestamp(message["message"]["date"]).strftime("%B-%Y")
                         self.send_answer(chat_id, f"Calculating momentum portfolio for {port_date_begin}...")  
                         stocks_list = self.wrangle_stocks()
                         stocks_data = self.wrangle(stocks_list)
