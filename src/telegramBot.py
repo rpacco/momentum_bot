@@ -31,7 +31,7 @@ class TelegramBot:
                         chat_id = message["message"]["from"]["id"]
                         message_text = message["message"]["text"]
                         date = pd.to_datetime(int(message["message"]["date"]), unit="ms")
-                        port_date_begin = (date - BMonthBegin().strftime("%B-%Y"))
+                        port_date_begin = (date - BMonthBegin()).strftime("%B-%Y")
                         self.send_answer(chat_id, f"Calculating momentum portfolio for {port_date_begin}...")  
                         stocks_list = self.wrangle_stocks()
                         stocks_data = self.wrangle(stocks_list)
