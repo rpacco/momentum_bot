@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from pandas.tseries.offsets import BMonthEnd, BMonthBegin
 from sklearn.linear_model import LinearRegression
 import numpy as np
+import src.visualization.visualize as vz
 
 load_dotenv()
 
@@ -49,6 +50,7 @@ class TelegramBot:
                                                         ).sort_values("momentum", ascending=False).head(5).index.to_list()
                         answer_bot = self.create_answer(momentum_stocks)
                         self.send_answer(chat_id, answer_bot)
+                        self.send_figure(chat_id, vz.cumret_plot(momentum_stocks))
                     except:
                         pass
     
@@ -74,6 +76,13 @@ class TelegramBot:
         reg = LinearRegression()
         reg.fit(X, y)
         return reg.coef_[0], reg.score(X, y)
+
+    def ret_portfolio(self, stocks_list):
+        #last day from previous month
+        start_date = pd.to_datetime(date.today() + BMonthEnd(-1))
+        end_date = pd.to_datetime(date.today())
+        df = yf.download(stocks_list, start=start_date, end=end_date)["Adj Close"].pct_change().dropna()
+
     
     def get_message(self, update_id):
         link_request = f"{self.url}getUpdates?timeout=1000"
@@ -88,4 +97,10 @@ class TelegramBot:
     def send_answer(self, chat_id, answer):
         link_to_send = f"{self.url}sendMessage?chat_id={chat_id}&text={answer}"
         requests.get(link_to_send)
+        return
+
+    def send_figure(self, chat_id, answer):
+        answer.seek(0)
+        requests.post(f"{self.url}sendPhoto?chat_id={chat_id}", files=dict(photo=answer))
+        answer.close()
         return
