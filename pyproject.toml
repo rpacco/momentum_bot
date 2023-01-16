@@ -1,0 +1,2 @@
+[worker]
+command = "main.py"
