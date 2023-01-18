@@ -36,99 +36,96 @@ class TelegramBot:
                 
                 if messages:
                     for message in messages:
-                        try:
-                            # retireving main data from user message
-                            update_id = message["update_id"]
-                            chat_id = message["message"]["from"]["id"]
-                            message_text = message["message"]["text"].upper().replace('/', '')
+                        # retireving main data from user message
+                        update_id = message["update_id"]
+                        chat_id = message["message"]["from"]["id"]
+                        message_text = message["message"]["text"].upper().replace('/', '')
 
-                            # default response for wrong user message
-                            if message_text not in ["SP500", "NASDAQ", "IBOVESPA"]:
-                                self.send_answer(chat_id, 
-                                    "Hi! This bot calculates the top-5 momentum assets of an index and returns "+
-                                    "a month-to-date cumulative returns graph based on a equal-weighted portfolio holding those assets.\n"+
-                                    "You must select one of the following index in order to "+
-                                    "have a momentum portfolio:\n/SP500\n/NASDAQ\n/IBOVESPA")
-                            
-                            # reponse for index selection by the user
-                            else:
-                                # defining the date which the investor should build its momentum portfolio
-                                port_date_begin = datetime.utcfromtimestamp(message["message"]["date"])
+                        # default response for wrong user message
+                        if message_text not in ["SP500", "NASDAQ", "IBOVESPA"]:
+                            self.send_answer(chat_id, 
+                                "Hi! This bot calculates the top-5 momentum assets of an index and returns "+
+                                "a month-to-date cumulative returns graph based on a equal-weighted portfolio holding those assets.\n"+
+                                "You must select one of the following index in order to "+
+                                "have a momentum portfolio:\n/SP500\n/NASDAQ\n/IBOVESPA")
+                        
+                        # reponse for index selection by the user
+                        else:
+                            # defining the date which the investor should build its momentum portfolio
+                            port_date_begin = datetime.utcfromtimestamp(message["message"]["date"])
 
-                                # sending a imediate response to the user in order to inform that the calculation has begun
-                                self.send_answer(chat_id, 
-                                f"Calculating momentum portfolio for {port_date_begin.strftime('%B-%Y')} based on {message_text} index...")  
+                            # sending a imediate response to the user in order to inform that the calculation has begun
+                            self.send_answer(chat_id, 
+                            f"Calculating momentum portfolio for {port_date_begin.strftime('%B-%Y')} based on {message_text} index...")  
 
-                                # establish connection to the database
-                                conn = mysql.connector.connect( 
-                                    host = host, 
-                                    user = user, 
-                                    password = password, 
-                                    database = database, 
-                                    port = port
-                                )
-                                # Retrieve the last row from the table
+                            # establish connection to the database
+                            conn = mysql.connector.connect( 
+                                host = host, 
+                                user = user, 
+                                password = password, 
+                                database = database, 
+                                port = port
+                            )
+                            # Retrieve the last row from the table
+                            cursor = conn.cursor()
+                            query = f"SELECT * FROM monthly_portfolios_{message_text.lower()} ORDER BY id DESC LIMIT 1"
+                            cursor.execute(query)
+                            last_row = cursor.fetchone()
+                            cursor.close()
+
+                            # If no data is found or its date is prior than the portfolio reference date, insert calculated data into the database
+                            if last_row is None or last_row[1].strftime("%m-%Y") != port_date_begin.strftime("%m-%Y"):
+                                # wrangle index stocks
+                                stocks_list = self.wrangle_stocks(message_text)
+                                # wrangling financial data for the index stocks
+                                stocks_data = self.wrangle(stocks_list)
+                                # momentum calculation for each stock belonging to the index
+                                try:
+                                    # creating empty momentum variables
+                                    list_coef = []
+                                    list_score = []
+                                    for d in stocks_data:
+                                        # storing slope coefficient and the score of the R² (determination coefficient)
+                                        coef, score = self.fit_reg(stocks_data[d])
+                                        list_coef.append(coef)
+                                        list_score.append(score)
+                                except:
+                                    pass
+                                # creating momentum coef
+                                momentum = [x*y for x, y in zip(list_coef, list_score)]
+                                # sorting the stocks by its momentum coefficient (the higher the coefficient higher its momentum) and picking the top 5 assets
+                                momentum_stocks = pd.DataFrame(
+                                                                    {
+                                                                    "lr_coef": list_coef,
+                                                                    "lr_r2": list_score,
+                                                                    "momentum": momentum
+                                                                    },
+                                                                    index=stocks_data.columns
+                                                                ).sort_values("momentum", ascending=False).head(5).index.to_list()
+                                # creating bullet answer of the 5-asset that will build the momentum portfolio
+                                answer_bot = self.create_answer(momentum_stocks)
+                                # sending the bullet answer and the month-to-date cumulative returs graph
+                                self.send_answer(chat_id, answer_bot)
+                                self.send_figure(chat_id, vz.cumret_plot(momentum_stocks, message_text))
+                                # inserting data into a SQL table called "monthly_portfolios"
                                 cursor = conn.cursor()
-                                query = f"SELECT * FROM monthly_portfolios_{message_text.lower()} ORDER BY id DESC LIMIT 1"
-                                cursor.execute(query)
-                                last_row = cursor.fetchone()
+                                cursor.execute(
+                                    f"INSERT INTO monthly_portfolios_{message_text.lower()} (month, asset1, asset2, asset3, asset4, asset5) VALUES (%s, %s, %s, %s, %s, %s)", 
+                                    (port_date_begin.strftime('%Y-%m-%d'), momentum_stocks[0], momentum_stocks[1], momentum_stocks[2], momentum_stocks[3], momentum_stocks[4]))
+                                conn.commit()
                                 cursor.close()
+                                conn.close()
+                                
+                            else:
+                                # storing assets tickers retrived from SQL database into a list
+                                assets = [last_row[2], last_row[3], last_row[4], last_row[5], last_row[6]]
+                                # creating bullet answer of the 5-asset that will build the momentum portfolio
+                                answer_bot = self.create_answer(assets)
+                                # sending the bullet answer and the month-to-date cumulative returs graph
+                                self.send_answer(chat_id, answer_bot)
+                                self.send_figure(chat_id, vz.cumret_plot(assets, message_text))
+                                conn.close()
 
-                                # If no data is found or its date is prior than the portfolio reference date, insert calculated data into the database
-                                if last_row is None or last_row[1].strftime("%m-%Y") != port_date_begin.strftime("%m-%Y"):
-                                    # wrangle index stocks
-                                    stocks_list = self.wrangle_stocks(message_text)
-                                    # wrangling financial data for the index stocks
-                                    stocks_data = self.wrangle(stocks_list)
-                                    # momentum calculation for each stock belonging to the index
-                                    try:
-                                        # creating empty momentum variables
-                                        list_coef = []
-                                        list_score = []
-                                        for d in stocks_data:
-                                            # storing slope coefficient and the score of the R² (determination coefficient)
-                                            coef, score = self.fit_reg(stocks_data[d])
-                                            list_coef.append(coef)
-                                            list_score.append(score)
-                                    except:
-                                        pass
-                                    # creating momentum coef
-                                    momentum = [x*y for x, y in zip(list_coef, list_score)]
-                                    # sorting the stocks by its momentum coefficient (the higher the coefficient higher its momentum) and picking the top 5 assets
-                                    momentum_stocks = pd.DataFrame(
-                                                                        {
-                                                                        "lr_coef": list_coef,
-                                                                        "lr_r2": list_score,
-                                                                        "momentum": momentum
-                                                                        },
-                                                                        index=stocks_data.columns
-                                                                    ).sort_values("momentum", ascending=False).head(5).index.to_list()
-                                    # creating bullet answer of the 5-asset that will build the momentum portfolio
-                                    answer_bot = self.create_answer(momentum_stocks)
-                                    # sending the bullet answer and the month-to-date cumulative returs graph
-                                    self.send_answer(chat_id, answer_bot)
-                                    self.send_figure(chat_id, vz.cumret_plot(momentum_stocks, message_text))
-                                    # inserting data into a SQL table called "monthly_portfolios"
-                                    cursor = conn.cursor()
-                                    cursor.execute(
-                                        f"INSERT INTO monthly_portfolios_{message_text.lower()} (month, asset1, asset2, asset3, asset4, asset5) VALUES (%s, %s, %s, %s, %s, %s)", 
-                                        (port_date_begin.strftime('%Y-%m-%d'), momentum_stocks[0], momentum_stocks[1], momentum_stocks[2], momentum_stocks[3], momentum_stocks[4]))
-                                    conn.commit()
-                                    cursor.close()
-                                    conn.close()
-                                    
-                                else:
-                                    # storing assets tickers retrived from SQL database into a list
-                                    assets = [last_row[2], last_row[3], last_row[4], last_row[5], last_row[6]]
-                                    # creating bullet answer of the 5-asset that will build the momentum portfolio
-                                    answer_bot = self.create_answer(assets)
-                                    # sending the bullet answer and the month-to-date cumulative returs graph
-                                    self.send_answer(chat_id, answer_bot)
-                                    self.send_figure(chat_id, vz.cumret_plot(assets))
-                                    conn.close()
-                                    
-                        except:
-                            pass
         except:
             pass
 
