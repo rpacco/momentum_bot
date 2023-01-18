@@ -77,7 +77,7 @@ class TelegramBot:
                                 # If no data is found or its date is prior than the portfolio reference date, insert calculated data into the database
                                 if last_row is None or last_row[1].strftime("%m-%Y") != port_date_begin.strftime("%m-%Y"):
                                     # wrangle index stocks
-                                    stocks_list = self.wrangle_stocks()
+                                    stocks_list = self.wrangle_stocks(message_text)
                                     # wrangling financial data for the index stocks
                                     stocks_data = self.wrangle(stocks_list)
                                     # momentum calculation for each stock belonging to the index
