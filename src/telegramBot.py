@@ -112,13 +112,16 @@ class TelegramBot:
                                 self.send_answer(chat_id, answer_bot)
                                 self.send_figure(chat_id, vz.cumret_plot(momentum_stocks, message_text))
                                 # inserting data into a SQL table called "monthly_portfolios"
-                                cursor = conn.cursor()
-                                cursor.execute(
-                                    f"INSERT INTO monthly_portfolios_{message_text.lower()} (month, asset1, asset2, asset3, asset4, asset5) VALUES (%s, %s, %s, %s, %s, %s)", 
-                                    (port_date_begin.strftime('%Y-%m-%d'), momentum_stocks[0], momentum_stocks[1], momentum_stocks[2], momentum_stocks[3], momentum_stocks[4]))
-                                conn.commit()
-                                cursor.close()
-                                conn.close()
+                                try:
+                                    cursor = conn.cursor()
+                                    cursor.execute(
+                                        f"INSERT INTO monthly_portfolios_{message_text.lower()} (month, asset1, asset2, asset3, asset4, asset5) VALUES (%s, %s, %s, %s, %s, %s)", 
+                                        (port_date_begin.strftime('%Y-%m-%d'), momentum_stocks[0], momentum_stocks[1], momentum_stocks[2], momentum_stocks[3], momentum_stocks[4])
+                                    )
+                                    conn.commit()
+                                finally:
+                                    cursor.close()
+                                    conn.close()
                                 
                             else:
                                 # storing assets tickers retrived from SQL database into a list
