@@ -145,7 +145,7 @@ class TelegramBot:
         if message_text == "IBOVESPA":
             url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/GetPortfolioDay/eyJsYW5ndWFnZSI6InB0LWJyIiwicGFnZU51bWJlciI6MSwicGFnZVNpemUiOjEyMCwiaW5kZXgiOiJJQk9WIiwic2VnbWVudCI6IjEifQ=="
             stocks = [str(x) + ".SA" for x in pd.json_normalize(requests.get(url).json()["results"])["cod"].to_list()]
-        if message_text == "SP500":
+        elif message_text == "SP500":
             url = "https://www.blackrock.com/us/individual/products/239726/ishares-core-sp-500-etf/1464253357814.ajax?tab=all&fileType=json"
             response = requests.get(url)
             decoded_data = response.content.decode('utf-8-sig')
