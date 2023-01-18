@@ -80,17 +80,21 @@ class TelegramBot:
                                 # wrangling financial data for the index stocks
                                 stocks_data = self.wrangle(stocks_list)
                                 # momentum calculation for each stock belonging to the index
-                                try:
-                                    # creating empty momentum variables
-                                    list_coef = []
-                                    list_score = []
-                                    for d in stocks_data:
+                                # creating empty momentum variables
+                                list_coef = []
+                                list_score = []
+                                no_fit = []                              
+                                for d in stocks_data:
+                                    try:  
                                         # storing slope coefficient and the score of the R² (determination coefficient)
                                         coef, score = self.fit_reg(stocks_data[d])
                                         list_coef.append(coef)
                                         list_score.append(score)
-                                except:
-                                    pass
+                                    except:
+                                        no_fit.append(d)
+                                        list_coef.append(0)
+                                        list_score.append(0)
+                                        pass
                                 # creating momentum coef
                                 momentum = [x*y for x, y in zip(list_coef, list_score)]
                                 # sorting the stocks by its momentum coefficient (the higher the coefficient higher its momentum) and picking the top 5 assets
