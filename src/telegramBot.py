@@ -27,14 +27,13 @@ class TelegramBot:
         password = os.environ["password"]
         database = os.environ["database"]
         port = os.environ["port"]
-        try:
-            while True:
-                # get updated id data from telegram bot user
-                update = self.get_message(update_id)
-                # get message data
-                messages = update["result"]
-                
-                if messages:
+        while True:
+            # get updated id data from telegram bot user
+            update = self.get_message(update_id)
+            # get message data
+            messages = update["result"]
+            if messages:
+                try:
                     for message in messages:
                         # retireving main data from user message
                         update_id = message["update_id"]
@@ -132,10 +131,8 @@ class TelegramBot:
                                 self.send_answer(chat_id, answer_bot)
                                 self.send_figure(chat_id, vz.cumret_plot(assets, message_text))
                                 conn.close()
-
-        except:
-            pass
-
+                except:
+                    pass
         return 
     
     def wrangle_stocks(self, message_text):
