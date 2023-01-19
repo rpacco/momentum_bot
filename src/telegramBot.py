@@ -67,13 +67,18 @@ class TelegramBot:
                             )
                             # Retrieve the last row from the table
                             cursor = conn.cursor()
-                            query = f"SELECT * FROM monthly_portfolios_{message_text.lower()} ORDER BY id DESC LIMIT 1"
+                            query = f'''
+                                    SELECT * FROM monthly_portfolios 
+                                    WHERE eq_index = '{message_text}'
+                                    ORDER BY month DESC
+                                    LIMIT 1;
+                                    '''
                             cursor.execute(query)
                             last_row = cursor.fetchone()
                             cursor.close()
 
                             # If no data is found or its date is prior than the portfolio reference date, insert calculated data into the database
-                            if last_row is None or last_row[1].strftime("%m-%Y") != port_date_begin.strftime("%m-%Y"):
+                            if last_row is None or last_row[2].strftime("%m-%Y") != port_date_begin.strftime("%m-%Y"):
                                 # wrangle index stocks
                                 stocks_list = self.wrangle_stocks(message_text)
                                 # wrangling financial data for the index stocks
@@ -114,8 +119,8 @@ class TelegramBot:
                                 try:
                                     cursor = conn.cursor()
                                     cursor.execute(
-                                        f"INSERT INTO monthly_portfolios_{message_text.lower()} (month, asset1, asset2, asset3, asset4, asset5) VALUES (%s, %s, %s, %s, %s, %s)", 
-                                        (port_date_begin.strftime('%Y-%m-%d'), momentum_stocks[0], momentum_stocks[1], momentum_stocks[2], momentum_stocks[3], momentum_stocks[4])
+                                        f"INSERT INTO monthly_portfolios (eq_index, month, asset1, asset2, asset3, asset4, asset5) VALUES (%s, %s, %s, %s, %s, %s, %s)", 
+                                        (message_text, port_date_begin.strftime('%Y-%m-%d'), momentum_stocks[0], momentum_stocks[1], momentum_stocks[2], momentum_stocks[3], momentum_stocks[4])
                                     )
                                     conn.commit()
                                 finally:
@@ -124,7 +129,7 @@ class TelegramBot:
                                 
                             else:
                                 # storing assets tickers retrived from SQL database into a list
-                                assets = [last_row[2], last_row[3], last_row[4], last_row[5], last_row[6]]
+                                assets = [last_row[3], last_row[4], last_row[5], last_row[6], last_row[7]]
                                 # creating bullet answer of the 5-asset that will build the momentum portfolio
                                 answer_bot = self.create_answer(assets)
                                 # sending the bullet answer and the month-to-date cumulative returs graph
