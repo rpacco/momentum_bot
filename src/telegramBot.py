@@ -111,11 +111,6 @@ class TelegramBot:
                                                                     },
                                                                     index=stocks_data.columns
                                                                 ).sort_values("momentum", ascending=False).head(5).index.to_list()
-                                # creating bullet answer of the 5-asset that will build the momentum portfolio
-                                answer_bot = self.create_answer(momentum_stocks)
-                                # sending the bullet answer and the month-to-date cumulative returs graph
-                                self.send_answer(chat_id, answer_bot)
-                                self.send_figure(chat_id, vz.cumret_plot(momentum_stocks, message_text))
                                 # inserting data into a SQL table called "monthly_portfolios"
                                 try:
                                     cursor = conn.cursor()
@@ -127,6 +122,12 @@ class TelegramBot:
                                 finally:
                                     cursor.close()
                                     conn.close()
+                                
+                                # creating bullet answer of the 5-asset that will build the momentum portfolio
+                                answer_bot = self.create_answer(momentum_stocks)
+                                # sending the bullet answer and the month-to-date cumulative returs graph
+                                self.send_answer(chat_id, answer_bot)
+                                self.send_figure(chat_id, vz.cumret_plot(momentum_stocks, message_text))                         
                                 
                             else:
                                 # storing assets tickers retrived from SQL database into a list

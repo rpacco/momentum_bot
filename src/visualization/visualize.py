@@ -13,7 +13,7 @@ def cumret_plot(tickers_list, index):
     # defining yfinance index_ticker dictionary
     index_ticker = {
         "IBOVESPA": "^BVSP",
-        "SP500": "^GSCP",
+        "SP500": "^GSPC",
         "NASDAQ": "^IXIC"
     }
     # defining start and end date to calculate the portfolio returns
