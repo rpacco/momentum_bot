@@ -36,7 +36,7 @@ def cumret_plot(tickers_list, index):
     # plotting cumulative returns
     ax.plot(ret_port, label="Momentum Portfolio")
     ax.plot(ret_index, label=index)
-    ax.plot(ret_alpha, label="Alpha", linestyle="dashed", color = "green" if ret_alpha[-1] > 0 else "red")
+    ax.plot(ret_alpha, label="ALPHA strategy", linestyle="dashed", color = "green" if ret_alpha[-1] > 0 else "red")
     # adding informative cumulative return text at the last trading day available
     plt.text(ret_port.index[-1], ret_port[-1], str(round(ret_port[-1], 2)) + "%", ha="center")
     plt.text(ret_index.index[-1], ret_index[-1], str(round(ret_index[-1], 2)) + "%", ha="center")

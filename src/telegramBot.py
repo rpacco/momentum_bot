@@ -46,8 +46,8 @@ class TelegramBot:
                             self.send_answer(chat_id, 
                                 f"Hi {first_name}! This bot calculates the top-5 momentum assets of a reference index and returns "+
                                 "a month-to-date cumulative returns graph based on a equal-weighted portfolio holding those assets.\n"+
-                                "You must select one of the following index in order to "+
-                                "have a momentum portfolio:\n/SP500\n/NASDAQ\n/IBOVESPA")
+                                "You must select one of the following reference index in order to "+
+                                "have a momentum portfolio calculated:\n/SP500\n/NASDAQ\n/IBOVESPA")
                         
                         # reponse for index selection by the user
                         else:
@@ -158,14 +158,14 @@ class TelegramBot:
             decoded_data = response.content.decode('utf-8-sig')
             data = json.loads(decoded_data)
             df_raw = pd.DataFrame(data["aaData"])
-            stocks = df_raw[df_raw[3] == "Equity"][0].to_list().replace("BRK.B", "BRK-B").replace("BF.B", "BF-B") # replace to fix tickers to yfinance format
+            stocks = df_raw[df_raw[3] == "Equity"][0].replace("BRKB", "BRK-B").replace("BFB", "BF-B").to_list() # replace to fix tickers to yfinance format
         else:
             url = "https://www.blackrock.com/pt/profissionais/products/253741/ishares-nasdaq-100-ucits-etf/1547863479665.ajax?tab=all&fileType=json"
             response = requests.get(url)
             decoded_data = response.content.decode('utf-8-sig')
             data = json.loads(decoded_data)
             df_raw = pd.DataFrame(data["aaData"])
-            stocks = df_raw[df_raw[3] == "Equity"][0].to_list().replace("BRK.B", "BRK-B").replace("BF.B", "BF-B") # replace to fix tickers to yfinance format
+            stocks = df_raw[df_raw[3] == "Equity"][0].replace("BRKB", "BRK-B").replace("BFB", "BF-B").to_list() # replace to fix tickers to yfinance format
         return stocks
     
     def wrangle(self, stocks_list):
