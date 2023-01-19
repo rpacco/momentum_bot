@@ -39,11 +39,12 @@ class TelegramBot:
                         update_id = message["update_id"]
                         chat_id = message["message"]["from"]["id"]
                         message_text = message["message"]["text"].upper().replace('/', '')
+                        first_name = message["message"]["from"]["first_name"]
 
                         # default response for wrong user message
                         if message_text not in ["SP500", "NASDAQ", "IBOVESPA"]:
                             self.send_answer(chat_id, 
-                                "Hi! This bot calculates the top-5 momentum assets of an index and returns "+
+                                f"Hi {first_name}! This bot calculates the top-5 momentum assets of a reference index and returns "+
                                 "a month-to-date cumulative returns graph based on a equal-weighted portfolio holding those assets.\n"+
                                 "You must select one of the following index in order to "+
                                 "have a momentum portfolio:\n/SP500\n/NASDAQ\n/IBOVESPA")
@@ -157,14 +158,14 @@ class TelegramBot:
             decoded_data = response.content.decode('utf-8-sig')
             data = json.loads(decoded_data)
             df_raw = pd.DataFrame(data["aaData"])
-            stocks = df_raw[df_raw[3] == "Equity"][0].to_list()
+            stocks = df_raw[df_raw[3] == "Equity"][0].to_list().replace("BRK.B", "BRK-B").replace("BF.B", "BF-B") # replace to fix tickers to yfinance format
         else:
             url = "https://www.blackrock.com/pt/profissionais/products/253741/ishares-nasdaq-100-ucits-etf/1547863479665.ajax?tab=all&fileType=json"
             response = requests.get(url)
             decoded_data = response.content.decode('utf-8-sig')
             data = json.loads(decoded_data)
             df_raw = pd.DataFrame(data["aaData"])
-            stocks = df_raw[df_raw[3] == "Equity"][0].to_list()
+            stocks = df_raw[df_raw[3] == "Equity"][0].to_list().replace("BRK.B", "BRK-B").replace("BF.B", "BF-B") # replace to fix tickers to yfinance format
         return stocks
     
     def wrangle(self, stocks_list):
