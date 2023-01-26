@@ -29,7 +29,6 @@
 The scope of this project is still open and I would be happy to hear any suggestions ! Please contact me trough:
 <h3>&#x2022; E-mail: rafael.pacco@gmail.com</h3>
 <h3>&#x2022; Linkedin: <a href="https://www.linkedin.com/in/rpacco/"> Profile</a></h3>
-Email
 
 <h2> Acknowledgements </h2>
 
