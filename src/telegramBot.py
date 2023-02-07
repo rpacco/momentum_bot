@@ -18,18 +18,18 @@ load_dotenv()
 class TelegramBot:
     def __init__(self):
         # importing Telegram bot token and assigning to variable
-        TOKEN = os.getenv("API_KEY")
+        TOKEN = os.environ.get("API_KEY")
         self.url = f"https://api.telegram.org/bot{TOKEN}/"
 
     def start(self):
         # creating empty variable to store a unique identifier for each incoming update from a user.
         update_id = None
         # importing mySQL database variables and storing to each variable
-        host = os.getenv("host")
-        user = os.getenv("user")
-        password = os.getenv("password")
-        database = os.getenv("database")
-        port = os.getenv("port")
+        host = os.environ.get("host")
+        user = os.environ.get("user")
+        password = os.environ.get("password")
+        database = os.environ.get("database")
+        port = os.environ.get("port")
         while True:
             # get updated id data from telegram bot user
             update = self.get_message(update_id)
