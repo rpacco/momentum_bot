@@ -11,22 +11,25 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 import src.visualization.visualize as vz
 import mysql.connector
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class TelegramBot:
     def __init__(self):
         # importing Telegram bot token and assigning to variable
-        TOKEN = os.environ["api_key"]
+        TOKEN = os.getenv("API_KEY")
         self.url = f"https://api.telegram.org/bot{TOKEN}/"
 
     def start(self):
         # creating empty variable to store a unique identifier for each incoming update from a user.
         update_id = None
         # importing mySQL database variables and storing to each variable
-        host = os.environ["host"]
-        user = os.environ["user"]
-        password = os.environ["password"]
-        database = os.environ["database"]
-        port = os.environ["port"]
+        host = os.getenv("host")
+        user = os.getenv("user")
+        password = os.getenv("password")
+        database = os.getenv("database")
+        port = os.getenv("port")
         while True:
             # get updated id data from telegram bot user
             update = self.get_message(update_id)
