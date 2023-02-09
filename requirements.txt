@@ -2,8 +2,10 @@
 -e .
 
 # external requirements
-python-dotenv>=0.21.0
+pyTelegramBotAPI
+python-dotenv
 requests
+json
 pandas
 yfinance
 DateTime
