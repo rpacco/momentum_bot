@@ -8,7 +8,6 @@ setup(
         "pyTelegramBotAPI",
         "python-dotenv",
         "requests",
-        "json",
         "pandas",
         "yfinance",
         "DateTime",
