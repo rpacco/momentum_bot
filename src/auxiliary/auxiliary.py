@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
-import requests
 
 def fit_reg(stock_data):
     # convert range of index of stock_data into array and reshape it to a column vector
