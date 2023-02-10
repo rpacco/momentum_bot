@@ -13,15 +13,6 @@ def fit_reg(stock_data):
 
     return reg.coef_[0], reg.score(X, y)
 
-def send_figure(chat_id, answer, api_key):
-    url = f"https://api.telegram.org/bot{api_key}/"
-    # sending cumulative returns graph to the user
-    answer.seek(0)
-    requests.post(f"{url}sendPhoto?chat_id={chat_id}", files=dict(photo=answer))
-    answer.close()
-
-    return
-
 def create_answer(momentum_stocks):
     # creating bullet formatted response of the momentum portfolio stocks
     return "".join(f"- {stock}\n" for stock in momentum_stocks).replace(".SA", "")
