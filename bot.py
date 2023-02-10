@@ -71,11 +71,12 @@ def responder(mensagem):
             mensagem.chat.id,
             aux.create_answer(momentum_stocks)
         )
-        aux.send_figure(
+        # sending cumulative returns graph
+        bot.send_photo(
             mensagem.chat.id,
-            vz.cumret_plot(momentum_stocks, mensagem.text.replace("/", "")),
-            API
+            photo = vz.cumret_plot(momentum_stocks, mensagem.text.replace("/", ""))
         )
+        
     
     else:
         conn.close()
@@ -84,12 +85,11 @@ def responder(mensagem):
             mensagem.chat.id,
             aux.create_answer(assets)
         )
-        aux.send_figure(
+        # sending cumulative returns graph
+        bot.send_photo(
             mensagem.chat.id,
-            vz.cumret_plot(assets, mensagem.text.replace("/", "")),
-            API
+            photo = vz.cumret_plot(assets, mensagem.text.replace("/", ""))
         )
-
 
 def verificar(mensagem):
     return True

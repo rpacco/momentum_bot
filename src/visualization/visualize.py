@@ -5,6 +5,7 @@ import yfinance as yf
 import io
 from datetime import date
 from pandas.tseries.offsets import BMonthBegin
+from telegram import InputFile
 
 
 def cumret_plot(tickers_list, index):
@@ -50,6 +51,7 @@ def cumret_plot(tickers_list, index):
     # saving the plot to buffer and closing it
     fig.savefig(buf, format="png")
     plt.close(fig)
+    buf.seek(0)
 
     return buf
     
