@@ -53,4 +53,3 @@ def cumret_plot(tickers_list, index):
     buf.seek(0)
 
     return buf
-    
