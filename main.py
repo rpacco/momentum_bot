@@ -22,7 +22,7 @@ db_port = os.getenv("db_port")
 
 bot = telebot.TeleBot(API)
 app = Flask(__name__)
-URL = "https://momentumbot.onrender.com"
+URL = "https://momentumbot.onrender.com/"
 
 
 # Set the rate limit to 1 message per second
