@@ -126,7 +126,7 @@ def responder(message):
             f"Hi {message.from_user.first_name}! This bot calculates the top-5 momentum assets of a reference index and returns "+
             "a month-to-date cumulative returns graph based on a equal-weighted portfolio holding those assets.\n"+
             "You must select one of the following reference index in order to "+
-            "have a momentum portfolio calculated:\n/SP500\n/NASDAQ\n/IBOVESPA"
+            "have a momentum portfolio calculated:\n/sp500\n/nasdaq\n/ibovespa"
         )
     send_message(message.chat.id, text)
 
