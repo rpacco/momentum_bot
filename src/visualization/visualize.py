@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import pandas as pd
 import yfinance as yf
 import io
@@ -30,23 +31,28 @@ def cumret_plot(tickers_list, index):
     ret_port = (np.cumprod(1 + df_ret[[value for value in tickers_list if value != index_ticker[index]]].mean(axis=1))-1)*100
     ret_index = (np.cumprod(1 + df_ret[index_ticker[index]])-1)*100
     ret_alpha = ret_port - ret_index
+
     # creating figure
-    fig = plt.figure(figsize=(15, 8))
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots(figsize=(15, 8))
+
     # plotting cumulative returns
-    ax.plot(ret_port, label="Momentum Portfolio")
-    ax.plot(ret_index, label=index)
-    ax.plot(ret_alpha, label="ALPHA strategy", linestyle="dashed", color = "green" if ret_alpha[-1] > 0 else "red")
+    sns.lineplot(data=ret_port, ax=ax, label="Momentum Portfolio")
+    sns.lineplot(data=ret_index, ax=ax, label=index)
+    sns.lineplot(data=ret_alpha, ax=ax, label="ALPHA strategy", linestyle="dashed", 
+                color="green" if ret_alpha[-1] > 0 else "red")
+
     # adding informative cumulative return text at the last trading day available
-    plt.text(ret_port.index[-1], ret_port[-1], str(round(ret_port[-1], 2)) + "%", ha="center")
-    plt.text(ret_index.index[-1], ret_index[-1], str(round(ret_index[-1], 2)) + "%", ha="center")
-    plt.text(ret_alpha.index[-1], ret_alpha[-1], str(round(ret_alpha[-1], 2)) + "%", ha="center")
+    ax.text(ret_port.index[-1], ret_port[-1], str(round(ret_port[-1], 2)) + "%", ha="center")
+    ax.text(ret_index.index[-1], ret_index[-1], str(round(ret_index[-1], 2)) + "%", ha="center")
+    ax.text(ret_alpha.index[-1], ret_alpha[-1], str(round(ret_alpha[-1], 2)) + "%", ha="center")
+
     # adding labels and title
-    plt.ylabel("Cumulative returns (%)", fontsize=18)
-    plt.xlabel("Date", fontsize=18)
-    plt.title("Momentum portfolio returns", fontsize=20)
-    plt.legend()
-    plt.xticks(rotation=30)
+    ax.set(ylabel="Cumulative returns (%)", xlabel="Date", 
+        title="Momentum portfolio returns", fontsize=18)
+
+    ax.legend()
+    ax.tick_params(axis='x', rotation=30)
+
     # saving the plot to buffer and closing it
     fig.savefig(buf, format="png")
     plt.close(fig)

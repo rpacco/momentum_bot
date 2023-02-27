@@ -12,3 +12,5 @@ matplotlib
 scikit-learn
 numpy
 mysql-connector-python
+ratelimit
+Flask
