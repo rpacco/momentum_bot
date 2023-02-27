@@ -38,7 +38,7 @@ def send_photo(chat_id, photo):
     bot.send_photo(chat_id=chat_id, photo=photo)
 
 
-@bot.message_handler(commands=["IBOVESPA", "SP500", "NASDAQ"])
+@bot.message_handler(commands=["ibovespa", "sp500", "nasdaq"])
 def handle_commands(mensagem):
     # defining portfolio build date begin
     port_date_begin = datetime.now()
