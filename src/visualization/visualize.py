@@ -50,7 +50,7 @@ def cumret_plot(tickers_list, index):
     # adding labels and title
     ax.set(ylabel="Cumulative returns (%)", xlabel="Date", 
         title="Momentum portfolio returns")
-    sns.set_context(rc={"font.size":8,"axes.titlesize":5,"axes.labelsize":5})
+    sns.set_context(rc={"font.size": 10,"axes.titlesize": 12 ,"axes.labelsize": 10})
 
     ax.legend()
     ax.tick_params(axis='x', rotation=30)
