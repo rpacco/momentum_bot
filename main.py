@@ -44,7 +44,7 @@ def handle_commands(mensagem):
     # defining portfolio build date begin
     port_date_begin = datetime.now()
     # sending calculating msg to the user
-    calculating_msg(eq_index, port_date_begin)
+    calculating_msg(mensagem, port_date_begin)
     # connecting to sql database
     conn = db.conn_db(host, user, password, database, db_port)
     # retrieving last row from database where eq_index = command
@@ -117,7 +117,7 @@ def calculating_msg(mensagem, date):
     # sending a imediate response to the user in order to inform that the calculation has begun
     send_message(
         mensagem.chat.id, 
-        f"Calculating momentum portfolio for {date.strftime('%B-%Y')} based on {mensagem} index..."
+        f"Calculating momentum portfolio for {date.strftime('%B-%Y')} based on {mensagem.text.replace("/", "").upper()} index..."
     )
 
 
