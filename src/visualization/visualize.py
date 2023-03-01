@@ -18,8 +18,8 @@ def cumret_plot(tickers_list, index):
         "NASDAQ": "^IXIC"
     }
     # defining start and end date to calculate the portfolio returns
-    start_date = pd.to_datetime(date.today() + BMonthBegin(-1))
-    end_date = pd.to_datetime(date.today())
+    end_date = date.today()
+    start_date = date(end_date.year, end_date.month, 1)
     # wrangling month-to-date portfolio + benchmark data
     df = yf.download(tickers_list + [index_ticker[index]], start=start_date, end=end_date, auto_adjust=True)[["Open", "Close"]]
     # defining month-to-date returns for the portfolio, considering that the investor buys at Open on the first trading day of the month
