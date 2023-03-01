@@ -83,10 +83,10 @@ def handle_commands(mensagem):
                                         ).sort_values("momentum", ascending=False).head(5).index.to_list()
         # inserting data into a SQL table called "monthly_portfolios"
         first_day_month = date(port_date_begin.year, port_date_begin.month, 1).strftime("%Y-%m-%d")
-        try:    
-            db.insert_data_db(first_day_month, conn, eq_index, momentum_stocks)
-        finally:
-            conn.close()
+        # insert new portfolio to DB   
+        db.insert_data_db(first_day_month, conn, eq_index, momentum_stocks)
+        # close connection
+        conn.close()
         # sending the bullet answer and the month-to-date cumulative returs graph
         send_message(
             mensagem.chat.id,
