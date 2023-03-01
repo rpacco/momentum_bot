@@ -40,17 +40,18 @@ def send_photo(chat_id, photo):
 
 @bot.message_handler(commands=["ibovespa", "sp500", "nasdaq"])
 def handle_commands(mensagem):
+    eq_index = mensagem.text.replace("/", "").upper()
     # defining portfolio build date begin
     port_date_begin = datetime.now()
     # sending calculating msg to the user
-    calculating_msg(mensagem, port_date_begin)
+    calculating_msg(eq_index, port_date_begin)
     # connecting to sql database
     conn = db.conn_db(host, user, password, database, db_port)
     # retrieving last row from database where eq_index = command
-    last_row = db.last_row_db(conn, mensagem)
+    last_row = db.last_row_db(conn, eq_index=eq_index)
     if last_row is None or last_row[1].strftime("%m-%Y") != port_date_begin.strftime("%m-%Y"):
         # wrangle index stocks
-        stocks_list = w.wrangle_stocks(mensagem.text.replace('/', ''))
+        stocks_list = w.wrangle_stocks(eq_index)
         # wrangling financial data for the index stocks
         stocks_data = w.wrangle(stocks_list)
         # momentum calculation for each stock belonging to the index
@@ -83,7 +84,7 @@ def handle_commands(mensagem):
         # inserting data into a SQL table called "monthly_portfolios"
         first_day_month = date(port_date_begin.year, port_date_begin.month, 1).strftime("%Y-%m-%d")
         try:    
-            db.insert_data_db(first_day_month, conn, mensagem, momentum_stocks)
+            db.insert_data_db(first_day_month, conn, eq_index, momentum_stocks)
         finally:
             conn.close()
         # sending the bullet answer and the month-to-date cumulative returs graph
@@ -94,7 +95,7 @@ def handle_commands(mensagem):
         # sending cumulative returns graph
         send_photo(
             mensagem.chat.id,
-            photo = vz.cumret_plot(momentum_stocks, mensagem.text.replace("/", ""))
+            photo = vz.cumret_plot(momentum_stocks, eq_index)
         )
         
     
@@ -108,7 +109,7 @@ def handle_commands(mensagem):
         # sending cumulative returns graph
         send_photo(
             mensagem.chat.id,
-            photo = vz.cumret_plot(assets, mensagem.text.replace("/", ""))
+            photo = vz.cumret_plot(assets, eq_index)
         )
 
 
@@ -116,7 +117,7 @@ def calculating_msg(mensagem, date):
     # sending a imediate response to the user in order to inform that the calculation has begun
     send_message(
         mensagem.chat.id, 
-        f"Calculating momentum portfolio for {date.strftime('%B-%Y')} based on {mensagem.text.replace('/', '')} index..."
+        f"Calculating momentum portfolio for {date.strftime('%B-%Y')} based on {mensagem} index..."
     )
 
 
