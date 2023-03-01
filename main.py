@@ -117,7 +117,7 @@ def calculating_msg(mensagem, date):
     # sending a imediate response to the user in order to inform that the calculation has begun
     send_message(
         mensagem.chat.id, 
-        f"Calculating momentum portfolio for {date.strftime('%B-%Y')} based on {mensagem.text.replace("/", "").upper()} index..."
+        f"Calculating momentum portfolio for {date.strftime('%B-%Y')} based on {mensagem.text.replace('/', '').upper()} index..."
     )
 
 
