@@ -1,13 +1,13 @@
-import mysql.connector
+import psycopg2
 
 def conn_db(hostname, username, user_password, data_base, port_n):
     # establish connection to the database
-    conn = mysql.connector.connect( 
-        host = hostname, 
-        user = username, 
-        password = user_password, 
-        database = data_base, 
-        port = port_n
+    conn = psycopg2.connect(
+        host=hostname,
+        user=username,
+        password=user_password,
+        database=data_base,
+        port=port_n
     )
     return conn
 
