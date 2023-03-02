@@ -7,7 +7,7 @@ from pandas.tseries.offsets import BMonthEnd, BMonthBegin
 
 def wrangle_stocks(message_text):
     '''
-    This function is used to retrieve a list of stocks from specific API endpoints (Brazilian stock exchange, B3; Blackrock webiste for SP500 and NASDAQ index ETFs).
+    This function is used to retrieve a list of stocks from specific API endpoints (Brazilian stock exchange, B3; Wikipedia webiste for SP500 and NASDAQ index ETFs).
 
     Input: None
 
@@ -17,19 +17,13 @@ def wrangle_stocks(message_text):
         url = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/GetPortfolioDay/eyJsYW5ndWFnZSI6InB0LWJyIiwicGFnZU51bWJlciI6MSwicGFnZVNpemUiOjEyMCwiaW5kZXgiOiJJQk9WIiwic2VnbWVudCI6IjEifQ=="
         stocks = [str(x) + ".SA" for x in pd.json_normalize(requests.get(url).json()["results"])["cod"].to_list()]
     elif message_text == "SP500":
-        url = "https://www.blackrock.com/us/individual/products/239726/ishares-core-sp-500-etf/1464253357814.ajax?tab=all&fileType=json"
-        response = requests.get(url)
-        decoded_data = response.content.decode('utf-8-sig')
-        data = json.loads(decoded_data)
-        df_raw = pd.DataFrame(data["aaData"])
-        stocks = df_raw[df_raw[3] == "Equity"][0].replace("BRKB", "BRK-B").replace("BFB", "BF-B").to_list() # replace to fix tickers to yfinance format
+        url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+        df_raw = pd.read_html(url)
+        stocks = df_raw[0]["Symbol"].replace("BRK.B", "BRK-B").replace("BF.B", "BF-B").to_list() # replace to fix tickers to yfinance format
     else:
-        url = "https://www.blackrock.com/pt/profissionais/products/253741/ishares-nasdaq-100-ucits-etf/1547863479665.ajax?tab=all&fileType=json"
-        response = requests.get(url)
-        decoded_data = response.content.decode('utf-8-sig')
-        data = json.loads(decoded_data)
-        df_raw = pd.DataFrame(data["aaData"])
-        stocks = df_raw[df_raw[3] == "Equity"][0].replace("BRKB", "BRK-B").replace("BFB", "BF-B").to_list() # replace to fix tickers to yfinance format
+        url = "https://en.wikipedia.org/wiki/Nasdaq-100#Differences_from_NASDAQ_Composite_index"
+        df_raw = pd.read_html(url)
+        stocks = df_raw[4]["Ticker"].replace("BRK.B", "BRK-B").replace("BF.B", "BF-B").to_list()
     
     return stocks
 
