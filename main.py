@@ -22,20 +22,7 @@ db_port = os.getenv("db_port")
 
 bot = telebot.TeleBot(API)
 app = Flask(__name__)
-URL = "https://momentumbot.onrender.com/"
-
-
-# Set the rate limit to 1 message per second
-@sleep_and_retry
-@limits(calls=1, period=1)
-def send_message(chat_id, text):
-    bot.send_message(chat_id=chat_id, text=text)
-
-# Set the rate limit to 1 message per second
-@sleep_and_retry
-@limits(calls=1, period=1)
-def send_photo(chat_id, photo):
-    bot.send_photo(chat_id=chat_id, photo=photo)
+URL = os.getenv("URL_hook")
 
 
 @bot.message_handler(commands=["ibovespa", "sp500", "nasdaq"])
@@ -48,7 +35,7 @@ def handle_commands(mensagem):
     # connecting to sql database
     conn = db.conn_db(host, user, password, database, db_port)
     # retrieving last row from database where eq_index = command
-    last_row = db.last_row_db(conn, eq_index=eq_index)
+    last_row = db.last_row_db(conn, eq_index)
     if last_row is None or last_row[1].strftime("%m-%Y") != port_date_begin.strftime("%m-%Y"):
         # wrangle index stocks
         stocks_list = w.wrangle_stocks(eq_index)
@@ -131,11 +118,27 @@ def responder(message):
         )
     send_message(message.chat.id, text)
 
+
+# Set the rate limit to 1 message per second
+@sleep_and_retry
+@limits(calls=1, period=1)
+def send_message(chat_id, text):
+    bot.send_message(chat_id=chat_id, text=text)
+
+
+# Set the rate limit to 1 message per second
+@sleep_and_retry
+@limits(calls=1, period=1)
+def send_photo(chat_id, photo):
+    bot.send_photo(chat_id=chat_id, photo=photo)
+
+
 @app.route('/' + API, methods=['POST'])
 def getMessage():
     update = telebot.types.Update.de_json(request.stream.read().decode('utf-8'))
     bot.process_new_updates([update])
     return "!", 200
+
 
 @app.route("/")
 def webhook():
