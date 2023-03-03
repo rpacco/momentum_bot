@@ -9,3 +9,4 @@ requests
 scikit-learn
 seaborn
 yfinance
+matplotlib

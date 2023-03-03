@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import seaborn as sns
 import pandas as pd
 import yfinance as yf
@@ -54,6 +55,8 @@ def cumret_plot(tickers_list, index):
 
     ax.legend()
     ax.tick_params(axis='x', rotation=30)
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
     # saving the plot to buffer and closing it
     fig.savefig(buf, format="png")
